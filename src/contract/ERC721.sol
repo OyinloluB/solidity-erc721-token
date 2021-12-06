@@ -6,16 +6,28 @@ contract MyNFTToken {
     string public symbol = "LNFT";
 
     // key-value pair (uint256(tokenId) - address(owner's address))
-    mapping (uint256 => address) public owners;
+    mapping(uint256 => address) public owners;
 
     // key-value pair (address(owner's address) - uint256(balance))
     mapping(address => uint256) public balance;
     mapping(uint256 => address) public approvals;
 
     // events to be emitted
-    event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
-    event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
-    event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+    event Transfer(
+        address indexed _from,
+        address indexed _to,
+        uint256 indexed _tokenId
+    );
+    event Approval(
+        address indexed _owner,
+        address indexed _approved,
+        uint256 indexed _tokenId
+    );
+    event ApprovalForAll(
+        address indexed _owner,
+        address indexed _operator,
+        bool _approved
+    );
 
     // initializing the contract with the declared name and symbol
     constructor(string memory _name, string memory _symbol) {
@@ -36,7 +48,10 @@ contract MyNFTToken {
     // returns the balance of the owner
     function balanceOf(address owner) public view returns (uint256) {
         // checking to ensure that the address of the owner is not 0x0...
-        require(owner != address(0), "ERC721: balance query for the zero address");
+        require(
+            owner != address(0),
+            "ERC721: balance query for the zero address"
+        );
         // returning the number of NFTs owned by the owner
         return balance[owner];
     }
@@ -46,14 +61,24 @@ contract MyNFTToken {
         // passes the token id of the NFT, to select the owner with set token identifier
         address owner = owners[_tokenId];
         // checking to ensure that the address of the owner is not 0x0...
-        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        require(
+            owner != address(0),
+            "ERC721: owner query for nonexistent token"
+        );
         // returning the address of the owner of the NFT
         return owner;
     }
 
     // from: the owner of the NFT; to: the new owner of the NFT, tokenId: the NFT to transfer
-    function transferFrom(address _from, address _to, uint256 _tokenId) external payable {
-        require(ownerOf(_tokenId) == _from, "ERC721: transfer of token that is not own");
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) external payable {
+        require(
+            ownerOf(_tokenId) == _from,
+            "ERC721: transfer of token that is not own"
+        );
         require(_to != address(0), "ERC721: transfer to the zero address");
 
         // updating the new balance of the NFT owner
@@ -80,7 +105,10 @@ contract MyNFTToken {
     }
 
     function getApproved(uint256 _tokenId) external view returns (address) {
-        require(owners[_tokenId] != address(0), "ERC721: approved query for nonexistent token");
+        require(
+            owners[_tokenId] != address(0),
+            "ERC721: approved query for nonexistent token"
+        );
 
         return approvals[_tokenId];
     }
