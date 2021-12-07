@@ -11,6 +11,8 @@ contract MyNFTToken {
     // key-value pair (address(owner's address) - uint256(balance))
     mapping(address => uint256) public balance;
     mapping(uint256 => address) public approvals;
+    // a list of the approved operator a specific owner has
+    mapping(address => mapping(address => bool)) public operatorApprovals;
 
     // events to be emitted
     event Transfer(
@@ -93,7 +95,7 @@ contract MyNFTToken {
     }
 
     function approve(address _approved, uint256 _tokenId) external payable {
-        // making the caller of this function is the owner of the NFT
+        // making sure the caller of this function is the owner of the NFT
         require(ownerOf(_tokenId) == msg.sender);
         // getting the owner
         address owner = ownerOf(_tokenId);
@@ -104,12 +106,52 @@ contract MyNFTToken {
         emit Approval(ownerOf(_tokenId), _approved, _tokenId);
     }
 
+    // gets the approved address for a single NFT
     function getApproved(uint256 _tokenId) external view returns (address) {
+        // making sure the address isn't nonexistent
         require(
             owners[_tokenId] != address(0),
             "ERC721: approved query for nonexistent token"
         );
 
+        // returns the approved address
         return approvals[_tokenId];
+    }
+
+    // enables or disables approval
+    function setApprovalForAll(address _operator, bool _approved) external {
+        // making sure the the operation isn't being carried out by the owner
+        require(msg.sender != _operator, "ERC721: approve to caller");
+        operatorApprovals[msg.sender][_operator] = _approved;
+        emit ApprovalForAll(msg.sender, _operator, _approved);
+    }
+
+    // checks to see if a given address is an approved operator
+    function isApprovedForAll(address _owner, address _operator)
+        external
+        view
+        returns (bool)
+    {
+        // returns true if operator is approved for owner
+        return operatorApprovals[_owner][_operator];
+    }
+
+    function _mint(address _to, uint256 _tokenId) internal virtual {
+        require(_to != address(0), "ERC721: mint to the zero address");
+        require(owners[_tokenId] != address(0), "ERC721: token already minted");
+
+        balance[_to] += 1;
+        owners[_tokenId] = _to;
+
+        emit Transfer(address(0), _to, _tokenId);
+    }
+
+    function _burn(uint256 _tokenId) internal virtual {
+        address owner = ownerOf(_tokenId);
+
+        balance[owner] -= 1;
+        delete owners[_tokenId];
+
+        emit Transfer(owner, address(0), _tokenId);
     }
 }
